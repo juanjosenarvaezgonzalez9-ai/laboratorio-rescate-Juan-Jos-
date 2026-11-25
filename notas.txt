@@ -1,4 +1,4 @@
 Línea 1: Git guarda el historial del proyecto.
 Línea 2: Recomendados.
 Línea 3: Las ramas permiten trabajar sin dañar main.
-Línea 4: Los mensajes de commit deben ser claros.
+Línea 4: Sin sentido.
