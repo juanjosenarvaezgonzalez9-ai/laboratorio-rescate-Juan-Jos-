@@ -2,3 +2,4 @@ Línea 1: Git guarda el historial del proyecto.
 Línea 2: Recomendados.
 Línea 3: Las ramas permiten trabajar sin dañar main.
 Línea 4: Sin sentido.
+Línea 5: git stash guarda cambios temporales.
