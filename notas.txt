@@ -3,3 +3,112 @@ Línea 2: Recomendados.
 Línea 3: Las ramas permiten trabajar sin dañar main.
 Línea 4: Sin sentido.
 Línea 5: git stash guarda cambios temporales.
+
+## Reto 1: Ver el historial
+
+**Comandos usados:**
+-  git log
+-  git log --oneline
+-  git log --oneline --graph --all
+
+**¿Qué muestra cada comando?**
+-  git log : muestra el historial completo de commits en orden cronológico inverso, incluyendo el identificador completo (hash), autor, fecha, hora y mensaje detallado de cada commit.
+-  git log --oneline`: muestra el mismo historial pero en formato compacto, con una sola línea por commit que contiene el hash abreviado (los primeros 7 caracteres) y el título del mensaje.
+-  git log --oneline --graph --all`: muestra el historial resumido acompañado de un gráfico de líneas en texto que representa las bifurcaciones y uniones entre ramas, incluyendo todas las ramas del repositorio y no solo la rama actual.
+
+**¿Qué es el código que aparece al inicio de cada commit?**
+Es el **hash del commit** (un identificador criptográfico SHA-1 único). Funciona como la huella digital de cada versión guardada; se genera a partir de los cambios, el autor, la fecha y el commit anterior, lo que permite identificar y referenciar cualquier punto del historial de forma exacta.
+
+---
+
+## Reto 2: Ver qué cambió antes de guardar
+
+**Comandos usados:**
+-  git diff
+-  git add notas.txt
+-  git diff --staged
+
+**¿Por qué el segundo  git diff` no mostró nada?**
+Porque  git diff  sin opciones solo compara el directorio de trabajo (*working directory*) contra el área de preparación (*staging area*). Al ejecutar `git add notas.txt`, las modificaciones pasaron al área de preparación, por lo que ya no quedaban diferencias pendientes entre ambos estados.
+
+**¿Qué muestra --staged?**
+ git diff --staged muestra los cambios exactos (líneas eliminadas y agregadas) que ya están en el área de preparación comparados con el último commit guardado; es decir, permite revisar exactamente qué se va a incluir en el próximo commit.
+
+---
+
+## Reto 3: "Borré un archivo por error"
+
+**Comandos usados:**
+- `rm notas.txt` (o `del notas.txt` en Windows)
+- `git restore notas.txt`
+
+**¿Qué hace `git restore`?**
+Descarta los cambios no confirmados en el directorio de trabajo y restaura el archivo exactamente al estado que tenía en el último commit (o en el área de preparación), recuperándolo incluso si fue eliminado del disco.
+
+**¿Funcionaría si nunca hubieras hecho commit de ese archivo?**
+No. Git solo puede restaurar archivos que ya estén rastreados (*tracked*) y guardados en su historial o índice. Si el archivo nunca se agregó ni se confirmó con commit, Git no tiene ninguna copia previa desde la cual recuperarlo.
+
+---
+
+## Reto 4: "Agregué un archivo que no debía subir"
+
+**Comandos usados:**
+- `git add .`
+- `git restore --staged secreto.env`
+- Creación de `.gitignore` con la regla `*.env`
+
+**¿Qué diferencia hay entre `git restore` y `git restore --staged`?**
+- `git restore <archivo>` revierte el archivo directamente en el directorio de trabajo, descartando los cambios locales que se hicieron en él.
+- `git restore --staged <archivo>` únicamente retira el archivo del área de preparación (*staging*) para que no sea incluido en el próximo commit, pero mantiene intacto el archivo y sus cambios en el disco.
+
+---
+
+## Reto 5: "Escribí mal el mensaje del commit"
+
+**Comandos usados:**
+- `git commit --amend -m "docs: agrega línea 4 a notas"`
+
+**¿Qué hace este comando?**
+Reemplaza el último commit local por uno nuevo con el mensaje corregido (y cualquier cambio adicional que esté en *staging*), evitando dejar mensajes poco descriptivos como `"cambios"` en el historial. Solo debe utilizarse antes de hacer `git push`, porque genera un nuevo hash y reescribe el historial; hacerlo sobre commits ya publicados causaría conflictos a otros colaboradores.
+
+---
+
+## Reto 6: "Subí un commit que dañó el proyecto"
+
+**Comandos usados:**
+- `git revert HEAD`
+
+**¿`git revert` borró el commit equivocado o creó uno nuevo?**
+Creó un **commit nuevo** (`Revert "fix: limpia notas"`) que aplica los cambios inversos para deshacer el error, dejando intacto el commit anterior en el historial.
+
+**¿Por qué es la opción segura cuando ya se hizo push?**
+Porque no borra ni reescribe el historial compartido en el repositorio remoto. Al sumar un nuevo commit en lugar de alterar los existentes, el resto del equipo puede descargar los cambios con `git pull` normalmente sin sufrir conflictos de historiales divergentes.
+
+---
+
+## Reto 7: "Hice un commit antes de tiempo"
+
+**Comandos usados:**
+- `git reset --soft HEAD~1`
+
+**¿Qué diferencia hay entre `git reset --soft` y `git revert`? ¿Cuándo se usa cada uno?**
+- `git reset --soft HEAD~1` retrocede el puntero de la rama al commit anterior, eliminando el último commit del historial, pero conserva los archivos modificados en el área de preparación para terminarlos y volver a hacer commit.
+- `git revert` conserva el commit problemático en el historial y añade un commit adicional que revierte sus cambios.
+- **Cuándo usarlos:**  git reset --soft  se usa **solo en commits locales** que todavía no se han subido con `push`. `git revert` se usa cuando el commit **ya fue subido** a un repositorio remoto o compartido.
+
+---
+
+## Reto 8: "Tengo trabajo a medias y debo cambiar de tarea"
+
+**Comandos usados:**
+-  git stash
+-  git stash list
+-  git switch -c fix/urgente
+-  git switch main
+-  git stash pop
+
+**¿Para qué sirve git stash?**
+Guarda temporalmente en una pila oculta los cambios que están sin terminar en el directorio de trabajo y el área de preparación, dejando el repositorio limpio para cambiar de rama y atender otra tarea sin tener que crear commits incompletos.
+
+**¿Qué hace git stash pop?**
+Toma el conjunto de cambios más reciente guardado en la pila del stash, lo vuelve a aplicar sobre la rama actual y lo elimina de la lista de guardados temporales.
